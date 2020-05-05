@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/prism/static/css/main.7e98e0ca.chunk.css",
-    "main.js": "/prism/static/js/main.ef7c098a.chunk.js",
-    "main.js.map": "/prism/static/js/main.ef7c098a.chunk.js.map",
+    "main.js": "/prism/static/js/main.d561cf80.chunk.js",
+    "main.js.map": "/prism/static/js/main.d561cf80.chunk.js.map",
     "runtime-main.js": "/prism/static/js/runtime-main.edab6668.js",
     "runtime-main.js.map": "/prism/static/js/runtime-main.edab6668.js.map",
     "static/js/2.856bd615.chunk.js": "/prism/static/js/2.856bd615.chunk.js",
     "static/js/2.856bd615.chunk.js.map": "/prism/static/js/2.856bd615.chunk.js.map",
     "index.html": "/prism/index.html",
-    "precache-manifest.a362ed3dc6430dd2e448a4c854c9ade4.js": "/prism/precache-manifest.a362ed3dc6430dd2e448a4c854c9ade4.js",
+    "precache-manifest.5cd853e30bd6334d6e1605f7f98700a5.js": "/prism/precache-manifest.5cd853e30bd6334d6e1605f7f98700a5.js",
     "service-worker.js": "/prism/service-worker.js",
     "static/css/main.7e98e0ca.chunk.css.map": "/prism/static/css/main.7e98e0ca.chunk.css.map",
     "static/js/2.856bd615.chunk.js.LICENSE.txt": "/prism/static/js/2.856bd615.chunk.js.LICENSE.txt"
@@ -17,6 +17,6 @@
     "static/js/runtime-main.edab6668.js",
     "static/js/2.856bd615.chunk.js",
     "static/css/main.7e98e0ca.chunk.css",
-    "static/js/main.ef7c098a.chunk.js"
+    "static/js/main.d561cf80.chunk.js"
   ]
 }

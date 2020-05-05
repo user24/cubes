@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/prism/precache-manifest.a362ed3dc6430dd2e448a4c854c9ade4.js"
+  "/prism/precache-manifest.5cd853e30bd6334d6e1605f7f98700a5.js"
 );
 
 self.addEventListener('message', (event) => {
