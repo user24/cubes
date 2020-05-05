@@ -42,9 +42,7 @@ class App extends PureComponent {
 
     cube.click = () => {
       material.visible = false;
-      if (this.numCubes < 10) {
-        setTimeout(this.renderCube.bind(this), randBetween(1000, 3000));
-      }
+      cube.position.y = Infinity;
     };
 
     this.scene.add(cube);
@@ -66,6 +64,7 @@ class App extends PureComponent {
         material.visible = true;
         material.color = randColour();
         cube.position.y = -6;
+        cube.position.x = randBetween(-5, 5) + Math.random();
       }
 
       this.renderer.render(this.scene, this.camera);
