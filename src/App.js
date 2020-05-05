@@ -39,6 +39,8 @@ class App extends PureComponent {
     const cube = new THREE.Mesh(geometry, material);
     cube.position.x = randBetween(-5, 5) + Math.random();
     cube.position.y = randBetween(-8, -5);
+    cube.rotation.x = Math.random();
+    cube.rotation.y = Math.random();
 
     cube.click = () => {
       material.visible = false;
