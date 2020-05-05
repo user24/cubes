@@ -18,9 +18,11 @@ class App extends PureComponent {
   constructor(props) {
     super(props);
     this.ref = React.createRef();
+    this.numCubes = 0;
   }
 
   renderCube(color) {
+    this.numCubes++;
 
     // Cube shape
     const geometry = new THREE.BoxGeometry();
@@ -37,6 +39,14 @@ class App extends PureComponent {
     const cube = new THREE.Mesh(geometry, material);
     cube.position.x = randBetween(-5, 5) + Math.random();
     cube.position.y = randBetween(-8, -5);
+
+    cube.click = () => {
+      material.visible = false;
+      if (this.numCubes < 10) {
+        setTimeout(this.renderCube.bind(this), randBetween(1000, 3000));
+      }
+    };
+
     this.scene.add(cube);
 
     // Each cube has its own speed
@@ -53,6 +63,8 @@ class App extends PureComponent {
       // Drift upwards, wrapping to bottom when reach top
       cube.position.y += factor;
       if (cube.position.y > 6) {
+        material.visible = true;
+        material.color = randColour();
         cube.position.y = -6;
       }
 
@@ -89,6 +101,32 @@ class App extends PureComponent {
     while (numCubes--) {
       this.renderCube();
     }
+
+    // Start listening for clicks
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    this.ref.addEventListener('mousedown', (event) => {
+
+      event.preventDefault();
+
+      mouse.x = (event.clientX / this.renderer.domElement.clientWidth) * 2 - 1;
+      mouse.y = - (event.clientY / this.renderer.domElement.clientHeight) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, this.camera);
+
+      const intersects = raycaster.intersectObjects(this.scene.children);
+
+      // run click on all
+      //intersects.filter(inter => 'click' in inter.object).forEach(inter => inter.object.click());
+
+      // run click just on the foremost 
+      if (intersects.length > 0) {
+        if (intersects[0].object.click) {
+          intersects[0].object.click();
+        }
+      }
+    });
   }
 
   render() {
