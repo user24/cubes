@@ -2,6 +2,17 @@ import React, { PureComponent } from 'react';
 import * as THREE from "three";
 import './App.css';
 
+const randBetween = (min, max) => {
+  return Math.floor(Math.random() * (max + 1 - min)) + min;
+}
+
+const randColour = () => {
+  const r = randBetween(0, 255);
+  const g = randBetween(0, 255);
+  const b = randBetween(0, 255);
+  return new THREE.Color(`rgb(${r}, ${g}, ${b})`);
+}
+
 class App extends PureComponent {
 
   constructor(props) {
@@ -12,19 +23,31 @@ class App extends PureComponent {
   renderCube(color) {
 
     const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshPhongMaterial({ color });
+
+    const material = new THREE.MeshPhongMaterial({
+      color: new THREE.Color(color || randColour()),
+      opacity: 0.5,
+      side: THREE.DoubleSide,
+      transparent: true
+    });
+
     const cube = new THREE.Mesh(geometry, material);
-    cube.position.x = Math.random() * 2;
-    cube.position.y = Math.random() * 2;
+    cube.position.x = randBetween(-5, 5);
+    cube.position.y = randBetween(-5, 5);
     this.scene.add(cube);
-    this.camera.position.z = 5;
+    this.camera.position.z = 7;
+    // Start off at a random rotation
+    cube.rotation.x += Math.random();
+    cube.rotation.y += Math.random();
+    // Animate rotation
+    //console.log(animationSpeed, color);
     const animate = () => {
       requestAnimationFrame(animate);
       cube.rotation.x += 0.01;
-      cube.rotation.y += 0.02;
+      cube.rotation.y += 0.01;
       this.renderer.render(this.scene, this.camera);
     };
-    setTimeout(animate, Math.random() * 2000);
+    animate();
   }
 
   componentDidMount() {
@@ -50,9 +73,10 @@ class App extends PureComponent {
     this.scene.add(dLight.target);
 
     // Render some cubes
-    this.renderCube(0x00cc00);
-    this.renderCube(0xcc00cc);
-    this.renderCube(0xcc0000);
+    let numCubes = 7;
+    while (numCubes--) {
+      this.renderCube();
+    }
   }
 
   render() {
