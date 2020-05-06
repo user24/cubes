@@ -26,48 +26,65 @@ class App extends PureComponent {
     this.numCubes++;
 
     // Cube shape
+    //const geometry = new THREE.SphereGeometry(0.5, 30, 30, 0, Math.PI * 2, 0, Math.PI * 2);
     const geometry = new THREE.BoxGeometry();
 
     // Colour
     const material = new THREE.MeshPhongMaterial({
       color: new THREE.Color(color || randColour()),
-      opacity: 0.5,
+      opacity: 0.8,
       side: THREE.DoubleSide,
       transparent: true
     });
 
     // Start off at a random rotation and position
     const cube = new THREE.Mesh(geometry, material);
-    cube.position.x = randBetween(-5, 5) + Math.random();
-    cube.position.y = randBetween(-8, -5);
-    cube.rotation.x = Math.random();
-    cube.rotation.y = Math.random();
+    // Trigger initialisation
+    cube.factor = Math.random() * 0.04 + 0.01;
+    cube.shouldInit = true;
 
     cube.click = () => {
-      material.visible = false;
-      cube.position.y = Infinity;
+      //cube.shouldInit = true;
+      //const color = material.color;
+      //material.color = new THREE.Color(`rgb(${color.r + 10},${color.g + 10},${color.b + 10})`);
+      //cube.geometry = new THREE.SphereGeometry(0.5, 15, 15);
+      //material.transparent = false;
+      //material.opacity = 1;
+      //material.side = THREE.FrontSide;
+      cube.factor = 0 - cube.factor;
     };
 
     this.scene.add(cube);
 
-    // Each cube has its own speed
-    const factor = Math.random() * (0.02) + 0.01;
-
     // Animate the cube
-    this.animations.push(() => {
+    const animate = () => {
       // Rotate
-      cube.rotation.x -= 0.01;
-      cube.rotation.y += 0.01;
+      cube.rotation.x -= 0.01 + Math.abs(cube.factor) / 4;
+      cube.rotation.y += 0.01 + Math.abs(cube.factor) / 4;
+      // Drift away from camera
+      cube.position.z -= cube.factor;
 
-      // Drift upwards, wrapping to bottom when reach top
-      cube.position.y += factor;
-      if (cube.position.y > 6) {
-        material.visible = true;
-        material.color = randColour();
-        cube.position.y = -6;
-        cube.position.x = randBetween(-5, 5) + Math.random();
+      if (cube.position.z < -25) {
+        // init when cubes get too far away
+        cube.shouldInit = true;
       }
-    });
+
+      if (cube.factor < 0 && cube.position.z > 5) {
+        // reverse direction if cube is coming towards us and gets too close
+        cube.factor = 0 - cube.factor;
+      }
+
+      if (cube.shouldInit) {
+        cube.position.x = randBetween(-5, 5) + Math.random();
+        cube.position.y = randBetween(-5, 5) + Math.random();
+        cube.position.z = randBetween(5, 20);
+        cube.rotation.x = Math.random();
+        cube.rotation.y = Math.random();
+        cube.shouldInit = false;
+      }
+    };
+    // Push to animation queue
+    this.animations.push(animate);
   }
 
   componentDidMount() {
