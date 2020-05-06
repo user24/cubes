@@ -19,9 +19,10 @@ class App extends PureComponent {
     super(props);
     this.ref = React.createRef();
     this.numCubes = 0;
+    this.animations = [];
   }
 
-  renderCube(color) {
+  addCube(color) {
     this.numCubes++;
 
     // Cube shape
@@ -53,9 +54,7 @@ class App extends PureComponent {
     const factor = Math.random() * (0.02) + 0.01;
 
     // Animate the cube
-    const animate = () => {
-      requestAnimationFrame(animate);
-
+    this.animations.push(() => {
       // Rotate
       cube.rotation.x -= 0.01;
       cube.rotation.y += 0.01;
@@ -68,10 +67,7 @@ class App extends PureComponent {
         cube.position.y = -6;
         cube.position.x = randBetween(-5, 5) + Math.random();
       }
-
-      this.renderer.render(this.scene, this.camera);
-    };
-    animate();
+    });
   }
 
   componentDidMount() {
@@ -97,11 +93,22 @@ class App extends PureComponent {
     this.scene.add(dLight.target);
     this.camera.position.z = 7;
 
+    // Maybe animate light here?
+
     // Render some cubes
-    let numCubes = 7;
+    let numCubes = 50;
     while (numCubes--) {
-      this.renderCube();
+      this.addCube();
     }
+
+    // Start animating and rendering.
+    const animate = () => {
+      this.animations.forEach(anim => anim());
+      // Now there's only 1 render no matter how many things are being animated
+      this.renderer.render(this.scene, this.camera);
+      requestAnimationFrame(animate);
+    };
+    animate();
 
     // Start listening for clicks
     const raycaster = new THREE.Raycaster();
