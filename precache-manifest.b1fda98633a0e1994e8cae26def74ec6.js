@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "b33f09be4e35e29b3bffea1fa2855277",
+    "revision": "3d7ff3d5da6d939b1662980dc249dcaa",
     "url": "/prism/index.html"
   },
   {
-    "revision": "b78290cb76087465be4c",
+    "revision": "542e348b7dcc709657f0",
     "url": "/prism/static/css/main.7e98e0ca.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/prism/static/js/2.856bd615.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "b78290cb76087465be4c",
-    "url": "/prism/static/js/main.95348dc9.chunk.js"
+    "revision": "542e348b7dcc709657f0",
+    "url": "/prism/static/js/main.35225e26.chunk.js"
   },
   {
     "revision": "ee06f244988b98a974bb",
