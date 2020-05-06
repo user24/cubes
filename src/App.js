@@ -6,11 +6,17 @@ const randBetween = (min, max) => {
   return Math.floor(Math.random() * (max + 1 - min)) + min;
 }
 
+const palette = [
+  'rgb(142, 164, 210)',
+  'rgb(98,121,184)',
+  'rgb(162, 207, 166)',
+  'rgb(73,111,93)',
+  'rgb(98,121,184)',
+  'rgb(76,159,112)',
+];
+
 const randColour = () => {
-  const r = randBetween(50, 200);
-  const g = randBetween(50, 200);
-  const b = randBetween(50, 200);
-  return new THREE.Color(`rgb(${r}, ${g}, ${b})`);
+  return new THREE.Color(palette[randBetween(0, palette.length - 1)]);
 }
 
 class App extends PureComponent {
@@ -20,13 +26,46 @@ class App extends PureComponent {
     this.ref = React.createRef();
     this.numCubes = 0;
     this.animations = [];
+    this.raycaster = new THREE.Raycaster();
+    this.mouse = new THREE.Vector2();
+    this.addedEvents = [];
   }
+
+  addEventListener(eventName, element, listener) {
+    element.handlers = element.handlers || {};
+    element.handlers[eventName] = element.handlers[eventName] || [];
+    element.handlers[eventName].push(listener);
+
+    if (this.addedEvents.indexOf(eventName) === -1) {
+      this.addedEvents.push(eventName);
+      this.ref.addEventListener(eventName, (event) => {
+        event.preventDefault();
+
+        this.mouse.x = (event.clientX / this.renderer.domElement.clientWidth) * 2 - 1;
+        this.mouse.y = - (event.clientY / this.renderer.domElement.clientHeight) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+
+        const intersects = this.raycaster.intersectObjects(this.scene.children);
+
+        // run on all (should do this for the 'up' events)
+        //intersects.filter(inter => 'click' in inter.object).forEach(inter => inter.object.click());
+
+        // run just on the foremost
+        if (intersects.length > 0) {
+          if (intersects[0].object.handlers) {
+            intersects[0].object.handlers[eventName].forEach(handler => handler());
+          }
+        }
+      });
+    }
+  };
 
   addCube(color) {
     this.numCubes++;
 
     // Cube shape
-    //const geometry = new THREE.SphereGeometry(0.5, 30, 30, 0, Math.PI * 2, 0, Math.PI * 2);
+    //const geometry = new THREE.SphereGeometry(0.5, 5, 5);
     const geometry = new THREE.BoxGeometry();
 
     // Colour
@@ -40,27 +79,41 @@ class App extends PureComponent {
     // Start off at a random rotation and position
     const cube = new THREE.Mesh(geometry, material);
     // Trigger initialisation
-    cube.factor = Math.random() * 0.04 + 0.01;
     cube.shouldInit = true;
+    // Factor defines drift and spin speed
+    cube.factor = Math.random() * 0.04 + 0.01;
 
-    cube.click = () => {
-      //cube.shouldInit = true;
-      //const color = material.color;
-      //material.color = new THREE.Color(`rgb(${color.r + 10},${color.g + 10},${color.b + 10})`);
-      //cube.geometry = new THREE.SphereGeometry(0.5, 15, 15);
-      //material.transparent = false;
-      //material.opacity = 1;
-      //material.side = THREE.FrontSide;
-      cube.factor = 0 - cube.factor;
-    };
+    this.addEventListener('mousedown', cube, () => {
+      cube.origFactor = cube.factor;
+      cube.factor = -0.01;
+      //material.originalColor = material.color;
+      //material.color = new THREE.Color(0xCC3333);
+    });
+    /*
+    this.addEventListener('mouseup', cube, () => {
+      cube.factor = cube.origFactor;
+      //material.color = material.originalColor;
+    });
+    /*
+        this.addEventListener('mouseleave', cube, () => {
+          if (!material.originalColor) {
+            return;
+          }
+          cube.factor = cube.origFactor;
+          material.color = material.originalColor;
+          delete material.originalColor;
+        });
+        */
 
     this.scene.add(cube);
 
     // Animate the cube
     const animate = () => {
       // Rotate
-      cube.rotation.x -= 0.01 + Math.abs(cube.factor) / 4;
-      cube.rotation.y += 0.01 + Math.abs(cube.factor) / 4;
+      if (cube.factor > 0) {
+        cube.rotation.x -= 0.01 + Math.abs(cube.factor) / 4;
+        cube.rotation.y += 0.01 + Math.abs(cube.factor) / 4;
+      }
       // Drift away from camera
       cube.position.z -= cube.factor;
 
@@ -90,24 +143,26 @@ class App extends PureComponent {
   componentDidMount() {
     // Create basic scene
     this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(new THREE.Color('rgb(178, 212, 199)'));
     this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(window.innerWidth - 10, window.innerHeight - 10);
     this.ref.appendChild(this.renderer.domElement);
 
     // Add lighting
-    const skyColor = 0xFFFFFF;
-    const groundColour = 0x000000;
+    const skyColor = new THREE.Color('rgb(197, 219, 237)');
+    const groundColour = new THREE.Color('rgb(58, 65, 95)');
     const intensity = 1;
     const hLight = new THREE.HemisphereLight(skyColor, groundColour, intensity);
     this.scene.add(hLight);
 
-    const color = 0xFFFFFF;
+    const color = new THREE.Color('rgb(125, 147, 198)');
     const dLight = new THREE.DirectionalLight(color, intensity);
     dLight.position.set(0, 10, 0);
     dLight.target.position.set(-5, 0, 0);
     this.scene.add(dLight);
     this.scene.add(dLight.target);
+
     this.camera.position.z = 7;
 
     // Maybe animate light here?
@@ -126,32 +181,6 @@ class App extends PureComponent {
       requestAnimationFrame(animate);
     };
     animate();
-
-    // Start listening for clicks
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    this.ref.addEventListener('mousedown', (event) => {
-
-      event.preventDefault();
-
-      mouse.x = (event.clientX / this.renderer.domElement.clientWidth) * 2 - 1;
-      mouse.y = - (event.clientY / this.renderer.domElement.clientHeight) * 2 + 1;
-
-      raycaster.setFromCamera(mouse, this.camera);
-
-      const intersects = raycaster.intersectObjects(this.scene.children);
-
-      // run click on all
-      //intersects.filter(inter => 'click' in inter.object).forEach(inter => inter.object.click());
-
-      // run click just on the foremost 
-      if (intersects.length > 0) {
-        if (intersects[0].object.click) {
-          intersects[0].object.click();
-        }
-      }
-    });
   }
 
   render() {
