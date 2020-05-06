@@ -71,7 +71,6 @@ class App extends PureComponent {
     // Colour
     const material = new THREE.MeshPhongMaterial({
       color: new THREE.Color(color || randColour()),
-      opacity: 0.8,
       side: THREE.DoubleSide,
       transparent: true
     });
@@ -80,12 +79,9 @@ class App extends PureComponent {
     const cube = new THREE.Mesh(geometry, material);
     // Trigger initialisation
     cube.shouldInit = true;
-    // Factor defines drift and spin speed
-    cube.factor = Math.random() * 0.04 + 0.01;
 
     this.addEventListener('mousedown', cube, () => {
-      cube.origFactor = cube.factor;
-      cube.factor = -0.01;
+      cube.factor = 0 - cube.factor;
       //material.originalColor = material.color;
       //material.color = new THREE.Color(0xCC3333);
     });
@@ -109,13 +105,29 @@ class App extends PureComponent {
 
     // Animate the cube
     const animate = () => {
+
+      if (cube.shouldInit) {
+        // Factor defines drift and spin speed
+        cube.factor = Math.random() * 0.04 + 0.01;
+        cube.position.x = randBetween(-5, 5) + Math.random();
+        cube.position.y = randBetween(-5, 5) + Math.random();
+        cube.position.z = randBetween(5, 20);
+        cube.rotation.x = Math.random();
+        cube.rotation.y = Math.random();
+        cube.shouldInit = false;
+      }
+
       // Rotate
       if (cube.factor > 0) {
         cube.rotation.x -= 0.01 + Math.abs(cube.factor) / 4;
         cube.rotation.y += 0.01 + Math.abs(cube.factor) / 4;
+      } else {
+        cube.rotation.x += 0.01 + Math.abs(cube.factor) / 4;
+        cube.rotation.y -= 0.01 + Math.abs(cube.factor) / 4;
       }
-      // Drift away from camera
+      // Drift and fade away from camera (or towards if factor < 0)
       cube.position.z -= cube.factor;
+      material.opacity = (cube.position.z + 25) / 45;
 
       if (cube.position.z < -25) {
         // init when cubes get too far away
@@ -127,14 +139,6 @@ class App extends PureComponent {
         cube.factor = 0 - cube.factor;
       }
 
-      if (cube.shouldInit) {
-        cube.position.x = randBetween(-5, 5) + Math.random();
-        cube.position.y = randBetween(-5, 5) + Math.random();
-        cube.position.z = randBetween(5, 20);
-        cube.rotation.x = Math.random();
-        cube.rotation.y = Math.random();
-        cube.shouldInit = false;
-      }
     };
     // Push to animation queue
     this.animations.push(animate);
