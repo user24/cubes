@@ -1,6 +1,6 @@
 # Cubes
 
-Check out the [project demo](https://user24.github.io/prism).
+Check out the [project demo](https://user24.github.io/cubes).
 
 ## Create React App stuff
 
