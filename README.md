@@ -1,4 +1,4 @@
-# Prism
+# Cubes
 
 Check out the [project demo](https://user24.github.io/prism).
 
